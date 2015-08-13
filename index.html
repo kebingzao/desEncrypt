@@ -69,17 +69,38 @@
                 mode: CryptoJS.mode.ECB,
                 padding: CryptoJS.pad.Pkcs7
             });
-            // 最后要返回16进制的加密串，否则默认是 base64 加密串
-            return encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+            var result = "";
+            switch(this._type.toString()){
+                case "1":
+                    //16 进制
+                    result = encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+                    break;
+                case "2":
+                    // base64
+                    result = encrypted.toString();
+                    break;
+            }
+            return result;
         },
         // des 解密
         decrypt: function(ciphertext){
             var key = this._key;
             var keyHex = CryptoJS.enc.Utf8.parse(key);
+            var textStr = "";
+            switch(this._type.toString()){
+                case "1":
+                    //16 进制
+                    textStr = CryptoJS.enc.Hex.parse(ciphertext);
+                    break;
+                case "2":
+                    // base64
+                    textStr = CryptoJS.enc.Base64.parse(ciphertext);
+                    break;
+            }
             // direct decrypt ciphertext
             var decrypted = CryptoJS.DES.decrypt({
                 // 这边要传化为16进制
-                ciphertext: CryptoJS.enc.Hex.parse(ciphertext)
+                ciphertext: textStr
             }, keyHex, {
                 mode: CryptoJS.mode.ECB,
                 padding: CryptoJS.pad.Pkcs7
