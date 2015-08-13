@@ -1,0 +1,9 @@
+.idea/
+.svn/
+_build/
+_docs/
+docs/
+node_modules/
+bower_components/
+*.iml
+*.mkm

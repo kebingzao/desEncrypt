@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DES 加密和解密</title>
+    <script src="lib.tripledes.js"></script>
+    <script src="lib.mode.ecb.js"></script>
+    <style>
+        #con {
+            width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .pb20 {
+            margin-bottom: 20px;
+        }
+        #title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        #keyInput {
+            width: 400px;
+        }
+        textarea {
+            width: 400px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+<div id="con">
+    <div id="title" class="pb20">DES 加解密示例演示：</div>
+    <div  class="pb20">
+        key: <input id="keyInput" type="text" value="hello world" />
+    </div>
+    <div class="pb20">
+        OriginalText: <textarea id="OriginalText" placeholder="这个是原文区域"></textarea>
+    </div>
+    <div class="pb20">
+        <button id="encrypt">加密</button>
+        <button id="decrypt">解密</button>
+    </div>
+    <div class="pb20">
+        加密方式：
+        <select id="type">
+            <option value="1">hex</option>
+            <option value="2">base64</option>
+        </select>
+    </div>
+    <div class="pb20">
+        Ciphertext: <textarea id="Ciphertext" placeholder="这个是密文区域"></textarea>
+    </div>
+</div>
+</body>
+<script>
+    var $ = function(id){
+        return document.getElementById(id);
+    };
+    var desUtil = {
+        // des的key
+        _key : "",
+        // 加密类型，默认是16进制
+        _type: 1,
+        // des 加密
+        encrypt: function(message){
+            var key = this._key;
+            var keyHex = CryptoJS.enc.Utf8.parse(key);
+            var encrypted = CryptoJS.DES.encrypt(message, keyHex, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            // 最后要返回16进制的加密串，否则默认是 base64 加密串
+            return encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+        },
+        // des 解密
+        decrypt: function(ciphertext){
+            var key = this._key;
+            var keyHex = CryptoJS.enc.Utf8.parse(key);
+            // direct decrypt ciphertext
+            var decrypted = CryptoJS.DES.decrypt({
+                // 这边要传化为16进制
+                ciphertext: CryptoJS.enc.Hex.parse(ciphertext)
+            }, keyHex, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            return decrypted.toString(CryptoJS.enc.Utf8);
+        }
+    };
+    $("keyInput").onkeyup = function(){
+        desUtil._key = $("keyInput").value;
+    };
+    $("type").onchange = function(){
+        desUtil._type = $("type").value;
+    };
+    $("encrypt").onclick = function(){
+        $("Ciphertext").value = desUtil.encrypt($("OriginalText").value);
+    };
+    $("decrypt").onclick = function(){
+        $("OriginalText").value = desUtil.decrypt($("Ciphertext").value);
+    };
+    $("keyInput").onkeyup();
+</script>
+</html>
